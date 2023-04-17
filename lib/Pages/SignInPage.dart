@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:recipe_app_work/SignUpPage.dart';
-class SignPage extends StatelessWidget {
+import 'package:provider/provider.dart';
+import 'package:recipe_app_work/Model/UserModel.dart';
+import 'package:recipe_app_work/Pages/AfterLoginPage.dart';
+import 'package:recipe_app_work/Pages/SignUpPage.dart';
+import 'package:recipe_app_work/Services/AuthService.dart';
+class SignPage extends StatefulWidget {
   const SignPage({Key? key}) : super(key: key);
   @override
+  State<SignPage> createState() => _SignPageState();
+}
+class _SignPageState extends State<SignPage> {
+  @override
   Widget build(BuildContext context) {
+    UserModel user=UserModel();
     return Scaffold(
       body: Align(alignment: Alignment.centerLeft,
         child: ListView(
@@ -22,23 +31,27 @@ class SignPage extends StatelessWidget {
             Text("Welcome Back!",style: TextStyle(color: Colors.black,
                 fontSize: 24)
             ),
-
             SizedBox(height: MediaQuery.of(context).size.height*0.1,),
             Text("Email"),
             TextField(
-              decoration:
-              InputDecoration(
-                hintStyle: TextStyle(color: Colors.grey),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                ),
-                hintText: 'Enter Email'
-              ),
+              onSubmitted: (value){
+                Provider.of<UserModel>(context,listen: false).email=value;
+              },
 
+              decoration: InputDecoration(
+                  hintStyle: TextStyle(color: Colors.grey),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                  ),
+                  hintText: 'Enter Email'
+              ),
             ),
             SizedBox(height: 10,),
             Text("Enter Password"),
             TextField(
+              onSubmitted: (value){
+                Provider.of<UserModel>(context,listen: false).password=value;
+              },
               decoration: InputDecoration(
                 hintStyle: TextStyle(color: Colors.grey),
                 border: OutlineInputBorder(
@@ -63,7 +76,11 @@ class SignPage extends StatelessWidget {
                 color: Colors.teal,
               ),
               child: OutlinedButton(
-                  onPressed: (){
+                  onPressed: ()async{
+                   await Provider.of<Auth>(context,listen: false).signInWithEmailAndPassword(
+                        Provider.of<UserModel>(context,listen: false).email,
+                        Provider.of<UserModel>(context,listen: false).password,
+                    );
               },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -115,7 +132,13 @@ class SignPage extends StatelessWidget {
                   width: socialMediaButtonSize,
 
 
-                  child: IconButton(style: IconButton.styleFrom(minimumSize: Size(90, 70)),color: Colors.teal,onPressed: (){}, icon: FaIcon(
+                  child: IconButton(style: IconButton.styleFrom(minimumSize: Size(90, 70)),color: Colors.teal,
+                    onPressed: ()async{
+                  await  Provider.of<Auth>(context,listen: false).signInWithGoogle();
+                  Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) =>AfterLogin()));
+                    },
+                     icon: FaIcon(
                     color: Colors.red,
                     FontAwesomeIcons.squareGooglePlus,
                     size: socialmediaIconSize
@@ -137,13 +160,15 @@ class SignPage extends StatelessWidget {
                   ),
                   height:socialMediaButtonSize,
                   width: socialMediaButtonSize,
-                  child: IconButton(style: IconButton.styleFrom(minimumSize: Size(90, 70)),color: Colors.teal,onPressed: (){}, icon: FaIcon(
+                  child: IconButton(style: IconButton.styleFrom(minimumSize: Size(90, 70)),color: Colors.teal,
+                    onPressed: ()async{
+                   await Provider.of<Auth>(context,listen: false).signInWithFacebook();
+                  }, icon: FaIcon(
                     color: Colors.blue,
                     FontAwesomeIcons.squareFacebook,
                     size: socialmediaIconSize
                   ),),
                 ),
-
 
               ],
             ),
